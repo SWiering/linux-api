@@ -63,22 +63,21 @@ class Packages():
         seperate_deps = package[dependency_key].split(',') # split all the dependencies
         package['dependency_urls'] = [] 
 
+        # Add the urls to dependency_urls for the packages that exist in __installed_packages
         for dependency in seperate_deps:
             dependency_name = dependency.replace(' ', '').split('(')[0]
 
             if dependency_name in self.package_names():
                 package['dependency_urls'].append(f'/{dependency_name}')
 
+                package_name = package['Package']
+
+                if dependency_name in self.__dependencies.keys():
+                    self.__dependencies[dependency_name].append(package_name)
+                else:
+                    self.__dependencies[dependency_name] = [package_name]
+
         return package
-
-    # def __reverse_dependencies(self, package):
-
-    #     for pckg in self.__installed_packages:
-    #         if self.
-
-    #     if self.__dependency_key in p
-
-    #     return True
 
     def all(self):
         return self.__installed_packages
@@ -87,9 +86,14 @@ class Packages():
         package_filter = [pckg for pckg in self.__installed_packages if pckg['Package'] == package_name]
         filter_result = package_filter[0]
 
+        if package_name in self.__dependencies.keys():
+            filter_result['reverse_dependencies'] = self.__dependencies[package_name]
+
         return filter_result
 
     def package_names(self):
         package_list = [package['Package'] for package in self.__installed_packages]
 
         return package_list
+
+
