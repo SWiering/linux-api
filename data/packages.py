@@ -9,6 +9,8 @@ class Packages():
         self.__set_dependencies()
 
     def __get_packages(self):
+        """Function the is designed to read the packages in the package file located in the root folder of the project
+        """
         statusfile = 'status'
         filecontents = ''
 
@@ -46,32 +48,43 @@ class Packages():
         self.__installed_packages = all_packages
 
     def __set_dependencies(self):
-        dependency_key = 'Depends'
+        """used to set dependencies on list level
+        """
 
+        # use range to save the package back into the list
         for index in range(0, len(self.__installed_packages)):
-            package = self.__installed_packages[index] ####
+            package = self.__installed_packages[index] 
 
             if self.__dependency_key in package.keys(): # if true means that the package has dependencies
-
-                package = self.__parse_dependencies(package, dependency_key)
+                package = self.__parse_dependencies(package)
                 
             self.__installed_packages[index] = package
 
         print(self.__dependencies)
 
-    def __parse_dependencies(self, package, dependency_key):
-        seperate_deps = package[dependency_key].split(',') # split all the dependencies
+    def __parse_dependencies(self, package):
+        """Makes sure the dependency urls are added on package-level in case they are installed
+
+        Args:
+            package (dict): dictionary containing all package info
+
+        Returns:
+            dict: returns the package with the dependency urls added into package
+        """
+        seperate_deps = package[self.__dependency_key].split(',') # split all the dependencies
         package['dependency_urls'] = [] 
 
         # Add the urls to dependency_urls for the packages that exist in __installed_packages
         for dependency in seperate_deps:
             dependency_name = dependency.replace(' ', '').split('(')[0]
 
+            # Adds the absolute urls to the package info
             if dependency_name in self.package_names():
                 package['dependency_urls'].append(f'/{dependency_name}')
 
                 package_name = package['Package']
 
+                # creates dependency associations for reverse dependencies
                 if dependency_name in self.__dependencies.keys():
                     self.__dependencies[dependency_name].append(package_name)
                 else:
@@ -80,9 +93,22 @@ class Packages():
         return package
 
     def all(self):
+        """Returns all the installed packages
+
+        Returns:
+            list: list of packages
+        """
         return self.__installed_packages
 
     def find(self, package_name):
+        """Find info of a package using the package name
+
+        Args:
+            package_name (str): package_name
+
+        Returns:
+            dict: dictionary with package info
+        """
         package_filter = [pckg for pckg in self.__installed_packages if pckg['Package'] == package_name]
         filter_result = package_filter[0]
 
@@ -92,6 +118,11 @@ class Packages():
         return filter_result
 
     def package_names(self):
+        """Returns a list of all package names
+
+        Returns:
+            list: package names
+        """
         package_list = [package['Package'] for package in self.__installed_packages]
 
         return package_list
