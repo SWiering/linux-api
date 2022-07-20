@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify
-from data.packages import all_packages, find_package
+from data.packages import Packages
 
 # Use blueprint for routing purposes
 packages_blueprint = Blueprint('packages', __name__)
 
-package_names = [package['Package'] for package in all_packages()]
+PackageData = Packages()
 
 @packages_blueprint.route('/', methods=['GET'])
 def get_packages():
@@ -13,9 +13,10 @@ def get_packages():
     Returns:
         list: name of all installed packages
     """
-    package_names = [package['Package'] for package in all_packages()]
+    package_names = PackageData.package_names()
 
     return jsonify(package_names)
+
 
 @packages_blueprint.route('/<package_name>')
 def get_package(package_name):
@@ -27,8 +28,8 @@ def get_package(package_name):
     Returns:
         dict: dictionary containing all info of installed package
     """
-    if package_name in package_names:
-        package_info = find_package(package_name)
+    if package_name in PackageData.package_names():
+        package_info = PackageData.find(package_name)
 
         return jsonify(package_info)
     else:

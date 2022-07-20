@@ -1,3 +1,4 @@
 *.pdf
 status
 .venv
+__pycache__
